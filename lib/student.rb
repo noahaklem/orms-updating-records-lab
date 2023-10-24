@@ -32,7 +32,7 @@ class Student
 
   def self.drop_table
     sql = <<-SQL
-      DROP TABLE students
+      DROP TABLE IF EXISTS students
     SQL
 
     DB[:conn].execute(sql)
@@ -64,10 +64,12 @@ class Student
       SELECT * 
       FROM students
       WHERE name = ?
+      LIMIT 1
     SQL
 
-    result = DB[:conn].execute(sql,name)[0]
-    Student.new_from_db(result)
+    result = DB[:conn].execute(sql,name).map do |row|
+      self.new_from_db(result)
+    end.first
   end
 
   def update
